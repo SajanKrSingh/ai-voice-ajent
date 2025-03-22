@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { DialogClose } from "@radix-ui/react-dialog";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useRouter } from "next/navigation";
 
 function UserInputDialog({ children, ExpertsList }) {
   const [SelectedExperts, setSelectedExperts] = useState();
@@ -22,6 +23,8 @@ function UserInputDialog({ children, ExpertsList }) {
 
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+
+  const router = useRouter();
   const OnClickNext = async () => {
     setLoading(true);
     const result = await createDiscussionRoom({
@@ -32,6 +35,7 @@ function UserInputDialog({ children, ExpertsList }) {
     setLoading(false);
     console.log(result);
     setOpenDialog(false);
+    router.push("/discussion-room/" + result);
   };
 
   return (
