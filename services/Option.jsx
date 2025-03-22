@@ -46,25 +46,25 @@ export const ExpertsList = [
   },
 ];
 
-// export const CoachingExpert = [
-//     {
-//         name: 'Joanna',
-//         avatar: '/t1.avif',
-//         pro: false
-//     },
-//     {
-//         name: 'Salli',
-//         avatar: '/t2.jpg',
-//         pro: false
-//     },
-//     {
-//         name: 'Joey',
-//         avatar: '/t3.jpg',
-//         pro: false
-//     },
-//     // {
-//     //     name: 'Rachel',
-//     //     avatar: '/t4.png',
-//     //     pro: true
-//     // },
-// ]
+export const CoachingExpert = [
+  {
+    name: "Joanna",
+    avatar: "/t1.avif",
+    pro: false,
+  },
+  {
+    name: "Salli",
+    avatar: "/t2.jpg",
+    pro: false,
+  },
+  {
+    name: "Joey",
+    avatar: "/t3.jpg",
+    pro: false,
+  },
+  // {
+  //     name: 'Rachel',
+  //     avatar: '/t4.png',
+  //     pro: true
+  // },
+];
