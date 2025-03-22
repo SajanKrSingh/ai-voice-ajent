@@ -6,7 +6,8 @@ import { UserButton } from "@stackframe/stack";
 import { useQuery } from "convex/react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import RecordRTC from "recordrtc";
 
 function DiscussionRoom() {
   const { roomid } = useParams();
@@ -14,6 +15,10 @@ function DiscussionRoom() {
     id: roomid,
   });
   const [expert, setExpert] = useState();
+  const [enableMic, setEnableMic] = useState(false);
+  const recorder = useRef(null);
+  let silenceTimeout;
+
   useEffect(() => {
     if (DiscussionRoomData) {
       const Expert = CoachingExpert.find(
@@ -23,6 +28,47 @@ function DiscussionRoom() {
       setExpert(Expert);
     }
   });
+
+  const connectToServer = () => {
+    setEnableMic(true);
+    if (typeof window !== "undefined" && typeof navigator !== "undefined") {
+      navigator.mediaDevices
+        .getUserMedia({ audio: true })
+        .then((stream) => {
+          recorder.current = new RecordRTC(stream, {
+            type: "audio",
+            mimeType: "audio/webm;codecs=pcm",
+            recorderType: RecordRTC.StereoAudioRecorder,
+            timeSlice: 250,
+            desiredSampRate: 16000,
+            numberOfAudioChannels: 1,
+            bufferSize: 4096,
+            audioBitsPerSecond: 128000,
+            ondataavailable: async (blob) => {
+              //   if (!realtimeTranscriber.current) return;
+              // Reset the silence detection timer on audio input
+              clearTimeout(silenceTimeout);
+              const buffer = await blob.arrayBuffer();
+              //console.log(buffer)
+              // Restart the silence detection timer
+              silenceTimeout = setTimeout(() => {
+                console.log("User stopped talking");
+                // Handle user stopped talking (e.g., send final transcript, stop recording, etc.)
+              }, 2000);
+            },
+          });
+          recorder.current.startRecording();
+        })
+        .catch((err) => console.error(err));
+    }
+  };
+
+  const disconnect = (e) => {
+    e.preventDefault();
+    recorder.current.pauseRecording();
+    recorder.current = null;
+    setEnableMic(false);
+  };
 
   return (
     <div className="-mt-12">
@@ -34,7 +80,7 @@ function DiscussionRoom() {
           <div className=" h-[60vh] bg-secondary  border rounded-4xl flex flex-col items-center justify-center relative">
             <Image
               src={expert?.avatar}
-              alt="Avatar"
+              alt={expert?.name}
               width={200}
               height={200}
               className="h-[80px] w-[80px] rounded-full object-cover animate-pulse"
@@ -45,7 +91,13 @@ function DiscussionRoom() {
             </div>
           </div>
           <div className="mt-5 flex items-center justify-center">
-            <Button>Connect</Button>
+            {!enableMic ? (
+              <Button onClick={connectToServer}>Connect</Button>
+            ) : (
+              <Button variant={"destructive"} onClick={disconnect}>
+                Disconnect
+              </Button>
+            )}
           </div>
         </div>
         <div>
